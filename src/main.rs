@@ -39,7 +39,18 @@ impl ChessApp {
 
     pub fn on_click(&mut self, pos: Pos2) {
         let index = screen_pos_to_board_index(self, pos);
-        self.state.selected_square = Some(index);
+        // either select square or move piece
+        if self.state.selected_square.is_none() {
+            self.state.selected_square = Some(index);
+        } else {
+            let piece_moved =
+                self.state
+                    .move_piece(&self.config, self.state.selected_square.unwrap(), index);
+            self.state.selected_square = None;
+            if piece_moved {
+                self.state.switch_turn();
+            }
+        }
     }
 }
 
