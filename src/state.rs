@@ -1,82 +1,30 @@
-use crate::{
-    ChessApp,
-    config::GameConfig,
-    util::{board_index_to_board_xy, board_xy_to_board_index},
-};
+use crate::board::{Board, BoardExt, BoardIndex, Color};
 
 #[derive(Default)]
 pub struct GameState {
-    pub board: Vec<Option<Piece>>,
+    pub board: Board,
     pub turn: Color,
-    pub selected_square: Option<u16>,
+    pub castling_status: ((bool, bool), (bool, bool)),
+    pub selected_square: Option<BoardIndex>,
 }
 
 impl GameState {
-    pub fn new(board_size: u16) -> Self {
-        let mut state = Self {
-            board: vec![None; (board_size * board_size) as usize],
+    pub fn new() -> Self {
+        Self {
+            board: Board::new(),
             turn: Color::White,
-            selected_square: Some(10),
-        };
-        state.board[1] = Some((PieceType::Bishop, Color::White));
-        state.board[10] = Some((PieceType::King, Color::Black));
-        state
-    }
-
-    pub fn set_default_position(mut self) -> Self {
-        let row = [
-            PieceType::Rook,
-            PieceType::Knight,
-            PieceType::Bishop,
-            PieceType::Queen,
-            PieceType::King,
-            PieceType::Bishop,
-            PieceType::Knight,
-            PieceType::Rook,
-        ];
-
-        self.board[0..8].copy_from_slice(&row.map(|p| Some((p, Color::Black))));
-        self.board[8..16].fill(Some((PieceType::Pawn, Color::Black)));
-        self.board[16..48].fill(None);
-        self.board[48..56].fill(Some((PieceType::Pawn, Color::White)));
-        self.board[56..64].copy_from_slice(&row.map(|p| Some((p, Color::White))));
-        self
-    }
-
-    // Returns true if the movement is valid and the piece has been moved, and false if not (false also means the piece has not been moved)
-    pub fn move_piece(&mut self, config: &GameConfig, from: u16, to: u16) -> bool {
-        let from = from as usize;
-        if self.board.len() <= from {
-            false
-        }
-        // origin square has no piece
-        else if self.board[from].is_none() {
-            false
-        }
-        // piece has the wrong color (if it's white's turn, they can't move a black piece)
-        else if self.board[from].unwrap().1 != self.turn {
-            false
-        } else {
-            let piece = self.board[from].unwrap();
-            let valid = self.validate_piece_movement(config, piece, from as u16, to);
-            if valid {
-                self.board[from] = None;
-                self.board[to as usize] = Some(piece);
-                true
-            } else {
-                false
-            }
+            castling_status: ((true, true), (true, true)),
+            selected_square: None,
         }
     }
 
-    fn validate_piece_movement(
-        &self,
-        config: &GameConfig,
-        piece: (PieceType, Color),
-        from: u16,
-        to: u16,
-    ) -> bool {
-        true
+    pub fn new_with_default_position() -> Self {
+        Self {
+            board: Board::default_position(),
+            turn: Color::White,
+            castling_status: ((true, true), (true, true)),
+            selected_square: None,
+        }
     }
 
     pub fn switch_turn(&mut self) {
@@ -86,23 +34,12 @@ impl GameState {
             self.turn = Color::White;
         }
     }
-}
 
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum PieceType {
-    Pawn,
-    Bishop,
-    Knight,
-    Rook,
-    Queen,
-    King,
+    /// Moves the piece from `start` to `destination`. This function validates the move fully.
+    /// Returns `false` if the move is invalid and the move was not performed.
+    /// Returns `true` if the move is valid and the piece was moved.
+    pub fn move_piece(&mut self, start: BoardIndex, destination: BoardIndex) -> bool {
+        self.board[destination as usize] = self.board[start as usize];
+        true
+    }
 }
-
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub enum Color {
-    Black,
-    #[default]
-    White,
-}
-
-pub type Piece = (PieceType, Color);
