@@ -1,6 +1,6 @@
 use eframe::egui::Pos2;
 
-use crate::{config::GameConfig, ChessApp};
+use crate::{ChessApp, config::GameConfig};
 
 pub fn screen_pos_to_board_index(app: &ChessApp, screen_pos: Pos2) -> u16 {
     let new_pos: (u16, u16) = (
