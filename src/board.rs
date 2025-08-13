@@ -41,6 +41,7 @@ pub type Board = Vec<Option<Piece>>;
 pub trait BoardExt {
     fn empty_board() -> Self;
     fn default_position() -> Board;
+    fn piece_at(&self, index: BoardIndex) -> Option<Piece>;
 }
 
 impl BoardExt for Board {
@@ -66,6 +67,15 @@ impl BoardExt for Board {
         board[48..56].fill(Some(Piece::new(PieceType::Pawn, Color::White)));
         board[56..64].copy_from_slice(&row.map(|p| Some(Piece::new(p, Color::White))));
         board
+    }
+
+    fn piece_at(&self, index: BoardIndex) -> Option<Piece> {
+        let index = index as usize;
+        if index >= self.len() {
+            None
+        } else {
+            self[index]
+        }
     }
 }
 

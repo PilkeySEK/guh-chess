@@ -1,4 +1,7 @@
-use crate::board::{Board, BoardExt, BoardIndex, Color};
+use crate::{
+    board::{Board, BoardExt, BoardIndex, Color},
+    move_validation::{movement::Movement, validator::validate_move},
+};
 
 #[derive(Default)]
 pub struct GameState {
@@ -39,7 +42,16 @@ impl GameState {
     /// Returns `false` if the move is invalid and the move was not performed.
     /// Returns `true` if the move is valid and the piece was moved.
     pub fn move_piece(&mut self, start: BoardIndex, destination: BoardIndex) -> bool {
-        self.board[destination as usize] = self.board[start as usize];
-        true
+        if self.board.piece_at(start).is_none() {
+            false
+        } else {
+            if validate_move(Movement::from_with_state(start, destination, self)) {
+                self.board[destination as usize] = self.board[start as usize];
+                self.board[start as usize] = None;
+                true
+            } else {
+                false
+            }
+        }
     }
 }
