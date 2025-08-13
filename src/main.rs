@@ -31,7 +31,6 @@ impl ChessApp {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         egui_extras::install_image_loaders(&cc.egui_ctx);
         let config = GameConfig::new();
-        // Self::default()
         Self {
             config: config,
             state: state::GameState::new(config.board_squares).set_default_position(),
