@@ -3,6 +3,7 @@ use crate::{
     state::GameState,
 };
 
+#[derive(Clone)]
 pub struct Movement {
     pub start: BoardIndex,
     pub destination: BoardIndex,
@@ -10,24 +11,13 @@ pub struct Movement {
 }
 
 impl Movement {
-    pub fn new(
-        start: BoardIndex,
-        destination: BoardIndex,
-        movement_info: MovementInformation,
-    ) -> Self {
-        Self {
-            start: start,
-            destination: destination,
-            movement_info: movement_info,
-        }
-    }
-
     pub fn from_with_state(start: BoardIndex, destination: BoardIndex, state: &GameState) -> Self {
         Self {
             start: start,
             destination: destination,
             movement_info: MovementInformation {
-                capturing: state.board.piece_at(destination).is_some(),
+                capturing: state.board.piece_at(destination).is_some()
+                    || state.en_passant_square.is_some_and(|sq| sq == destination),
                 board: state.board.clone(),
                 piece_type: state.board.piece_at(start).unwrap().piece_type,
                 piece_color: state.board.piece_at(start).unwrap().color,
@@ -37,6 +27,7 @@ impl Movement {
     }
 }
 
+#[derive(Clone)]
 pub struct MovementInformation {
     pub capturing: bool,
     pub board: Board,
