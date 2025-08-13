@@ -59,7 +59,7 @@ impl eframe::App for ChessApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             rendering::resize(self, ctx);
             let board_rect = Rect::from_min_size(Pos2::ZERO, self.config.board_size_vec2());
-            let mut response = ui.allocate_rect(board_rect, Sense::click());
+            let response = ui.allocate_rect(board_rect, Sense::click());
             let mut painter = ui.painter_at(board_rect);
             rendering::render(self, ui, &mut painter);
             if response.clicked() {
