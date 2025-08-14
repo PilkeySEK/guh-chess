@@ -1,11 +1,6 @@
-use std::ops::Range;
-
 use crate::{
     BOARD_SQUARES,
-    board::{
-        Board, BoardExt, BoardIndex, BoardIndexExt, BoardIndexXY, BoardIndexXYExt, Color, Piece,
-        PieceType,
-    },
+    board::{Board, BoardExt, BoardIndex, BoardIndexExt, BoardIndexXYExt, Color, Piece, PieceType},
     move_validation::movement::Movement,
     state::AdditionalBoardData,
 };
@@ -147,7 +142,6 @@ pub fn generate_piece_map(
                 piece_map.push(ele);
             }
         }
-        _ => {}
     }
     piece_map
 }

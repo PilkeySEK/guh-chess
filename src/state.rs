@@ -12,18 +12,6 @@ pub struct GameState {
 }
 
 impl GameState {
-    pub fn new() -> Self {
-        Self {
-            board: Board::new(),
-            turn: Color::White,
-            additional_board_data: AdditionalBoardData {
-                castling_status: ((true, true), (true, true)),
-                en_passant_square: None,
-            },
-            selected_square: None,
-        }
-    }
-
     pub fn new_with_default_position() -> Self {
         Self {
             board: Board::default_position(),
@@ -107,6 +95,7 @@ impl GameState {
 
 #[derive(Default, Copy, Clone)]
 pub struct AdditionalBoardData {
+    #[allow(dead_code)]
     pub castling_status: ((bool, bool), (bool, bool)),
     pub en_passant_square: Option<BoardIndex>,
 }

@@ -9,7 +9,7 @@ use crate::{
     util::board_size_vec2,
 };
 
-pub fn resize(app: &ChessApp, ctx: &egui::Context) {
+pub fn resize(ctx: &egui::Context) {
     ctx.send_viewport_cmd(ViewportCommand::InnerSize(board_size_vec2()));
 }
 
@@ -32,7 +32,7 @@ fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
         for j in 0..BOARD_SQUARES {
             if use_white {
                 painter.rect_filled(
-                    make_rect_for_index(app, i * BOARD_SQUARES + j),
+                    make_rect_for_index(i * BOARD_SQUARES + j),
                     CornerRadius::ZERO,
                     Color32::WHITE,
                 );
@@ -43,7 +43,7 @@ fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
     }
     if let Some(selected_square) = app.state.selected_square {
         painter.rect_filled(
-            make_rect_for_index(app, selected_square),
+            make_rect_for_index(selected_square),
             CornerRadius::ZERO,
             Color32::from_rgba_unmultiplied(255, 0, 0, 128),
         );
@@ -55,7 +55,7 @@ fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
         );
         for sq in possible_squares {
             painter.rect_filled(
-                make_rect_for_index(app, sq),
+                make_rect_for_index(sq),
                 CornerRadius::ZERO,
                 Color32::from_rgba_unmultiplied(0, 0, 255, 128),
             );
@@ -67,13 +67,13 @@ fn render_pieces(app: &ChessApp, ui: &mut Ui) {
     for (y, row) in app.state.board.chunks(BOARD_SQUARES as usize).enumerate() {
         for (x, piece) in row.iter().enumerate() {
             if let Some(piece) = piece {
-                render_piece_at(piece, (x as u16, y as u16), app, ui);
+                render_piece_at(piece, (x as u16, y as u16), ui);
             }
         }
     }
 }
 
-fn render_piece_at(piece: &Piece, position: (u16, u16), app: &ChessApp, ui: &mut Ui) {
+fn render_piece_at(piece: &Piece, position: (u16, u16), ui: &mut Ui) {
     egui::Image::new(get_piece_image(piece))
         .max_width(BOARD_SQUARE_SIZE as f32)
         .alt_text(format!(
@@ -124,7 +124,7 @@ fn get_piece_image(piece: &Piece) -> ImageSource<'static> {
     }
 }
 
-fn make_rect_for_index(app: &ChessApp, index: u16) -> Rect {
+fn make_rect_for_index(index: u16) -> Rect {
     let pos: (f32, f32) = (
         ((index % BOARD_SQUARES) * BOARD_SQUARE_SIZE) as f32,
         ((index / BOARD_SQUARES) * BOARD_SQUARE_SIZE) as f32,

@@ -39,15 +39,11 @@ impl Piece {
 pub type Board = Vec<Option<Piece>>;
 
 pub trait BoardExt {
-    fn empty_board() -> Self;
     fn default_position() -> Board;
     fn piece_at(&self, index: BoardIndex) -> Option<Piece>;
 }
 
 impl BoardExt for Board {
-    fn empty_board() -> Self {
-        vec![None; (BOARD_SQUARES * BOARD_SQUARES) as usize]
-    }
     fn default_position() -> Board {
         let mut board = vec![None; (BOARD_SQUARES * BOARD_SQUARES) as usize];
         let row = [

@@ -45,23 +45,3 @@ pub struct MovementInformation {
     pub turn: Color,
     pub board_data: AdditionalBoardData,
 }
-
-impl MovementInformation {
-    pub fn new(
-        capturing: bool,
-        board: Board,
-        piece_type: PieceType,
-        piece_color: Color,
-        turn: Color,
-        board_data: AdditionalBoardData,
-    ) -> Self {
-        Self {
-            capturing: capturing,
-            board: board,
-            piece_type: piece_type,
-            piece_color: piece_color,
-            turn: turn,
-            board_data: board_data,
-        }
-    }
-}

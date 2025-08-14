@@ -2,13 +2,11 @@ use eframe::egui::{self, Pos2, Rect, Sense, Vec2, ViewportBuilder};
 
 use crate::{
     board::{BoardIndex, BoardIndexExt, Color},
-    config::GameConfig,
     state::GameState,
     util::board_size_vec2,
 };
 
 mod board;
-mod config;
 mod move_validation;
 mod rendering;
 mod state;
@@ -34,19 +32,14 @@ fn main() -> eframe::Result {
 
 #[derive(Default)]
 struct ChessApp {
-    config: GameConfig,
     state: GameState,
 }
 
 impl ChessApp {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         egui_extras::install_image_loaders(&cc.egui_ctx);
-        let config = GameConfig::new();
         let state = state::GameState::new_with_default_position();
-        Self {
-            config: config,
-            state: state,
-        }
+        Self { state: state }
     }
 
     pub fn on_click(&mut self, pos: Pos2) {
@@ -74,7 +67,7 @@ impl ChessApp {
 impl eframe::App for ChessApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            rendering::resize(self, ctx);
+            rendering::resize(ctx);
             let board_rect = Rect::from_min_size(Pos2::ZERO, board_size_vec2());
             let response = ui.allocate_rect(board_rect, Sense::click());
             let mut painter = ui.painter_at(board_rect);
