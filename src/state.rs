@@ -6,10 +6,9 @@ use crate::{
 #[derive(Default)]
 pub struct GameState {
     pub board: Board,
-    pub turn: Color,
-    pub castling_status: ((bool, bool), (bool, bool)),
-    pub en_passant_square: Option<BoardIndex>,
     pub selected_square: Option<BoardIndex>,
+    pub turn: Color,
+    pub additional_board_data: AdditionalBoardData,
 }
 
 impl GameState {
@@ -17,8 +16,10 @@ impl GameState {
         Self {
             board: Board::new(),
             turn: Color::White,
-            castling_status: ((true, true), (true, true)),
-            en_passant_square: None,
+            additional_board_data: AdditionalBoardData {
+                castling_status: ((true, true), (true, true)),
+                en_passant_square: None,
+            },
             selected_square: None,
         }
     }
@@ -27,8 +28,10 @@ impl GameState {
         Self {
             board: Board::default_position(),
             turn: Color::White,
-            castling_status: ((true, true), (true, true)),
-            en_passant_square: None,
+            additional_board_data: AdditionalBoardData {
+                castling_status: ((true, true), (true, true)),
+                en_passant_square: None,
+            },
             selected_square: None,
         }
     }
@@ -74,7 +77,7 @@ impl GameState {
     /// Only sets the square if the moved piece was a pawn and it was moved 2 squares, else sets it to None
     pub fn set_en_passant_square(&mut self, m: Movement) {
         if m.movement_info.piece_type != PieceType::Pawn {
-            self.en_passant_square = None;
+            self.additional_board_data.en_passant_square = None;
             return;
         }
         let start_xy = m.start.to_xy();
@@ -87,9 +90,9 @@ impl GameState {
                 1
             };
             let en_passant_square = (start_xy.0, (start_xy.1 as i32 + modifier) as u16);
-            self.en_passant_square = Some(en_passant_square.to_index());
+            self.additional_board_data.en_passant_square = Some(en_passant_square.to_index());
         } else {
-            self.en_passant_square = None;
+            self.additional_board_data.en_passant_square = None;
             return;
         }
     }
@@ -99,4 +102,10 @@ impl GameState {
         // if destination square is None but capturing is true
         m.movement_info.board.piece_at(m.destination).is_none() && m.movement_info.capturing
     }
+}
+
+#[derive(Default)]
+pub struct AdditionalBoardData {
+    pub castling_status: ((bool, bool), (bool, bool)),
+    pub en_passant_square: Option<BoardIndex>,
 }

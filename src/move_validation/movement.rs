@@ -17,7 +17,10 @@ impl Movement {
             destination: destination,
             movement_info: MovementInformation {
                 capturing: state.board.piece_at(destination).is_some()
-                    || state.en_passant_square.is_some_and(|sq| sq == destination),
+                    || state
+                        .additional_board_data
+                        .en_passant_square
+                        .is_some_and(|sq| sq == destination),
                 board: state.board.clone(),
                 piece_type: state.board.piece_at(start).unwrap().piece_type,
                 piece_color: state.board.piece_at(start).unwrap().color,

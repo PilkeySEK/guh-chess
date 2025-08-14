@@ -5,6 +5,7 @@ use eframe::egui::{
 use crate::{
     BOARD_SQUARE_SIZE, BOARD_SQUARES, ChessApp,
     board::{Color, Piece, PieceType},
+    move_validation::validator::generate_piece_map,
     util::board_size_vec2,
 };
 
@@ -46,6 +47,19 @@ fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
             CornerRadius::ZERO,
             Color32::from_rgba_unmultiplied(255, 0, 0, 128),
         );
+        let possible_squares = generate_piece_map(
+            &app.state.board,
+            &app.state.additional_board_data,
+            app.state.turn,
+            selected_square,
+        );
+        for sq in possible_squares {
+            painter.rect_filled(
+                make_rect_for_index(app, sq),
+                CornerRadius::ZERO,
+                Color32::from_rgba_unmultiplied(0, 0, 255, 128),
+            );
+        }
     };
 }
 
