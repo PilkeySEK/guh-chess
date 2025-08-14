@@ -1,7 +1,7 @@
 use eframe::egui::{self, Pos2, Rect, Sense, Vec2, ViewportBuilder};
 
 use crate::{
-    board::{BoardIndex, BoardIndexExt, Color},
+    board::{BoardIndex, BoardIndexExt},
     state::GameState,
     util::{board_size_vec2, viewport_size_vec2},
 };
@@ -55,11 +55,6 @@ impl ChessApp {
             self.state.selected_square = None;
             if piece_moved {
                 self.state.switch_turn();
-            }
-            if self.state.turn == Color::White {
-                println!("White to move");
-            } else {
-                println!("Black to move");
             }
         }
     }
