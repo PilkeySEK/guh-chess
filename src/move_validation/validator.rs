@@ -241,6 +241,12 @@ pub fn generate_piece_map(
                 piece_map.push(ele);
             }
         }
+        PieceType::Bishop => {
+            let modifiers = [(1, 1), (-1, -1), (-1, 1), (1, -1)];
+            for ele in get_piece_map_from_modifiers(board, piece_index, piece, &modifiers) {
+                piece_map.push(ele);
+            }
+        }
         _ => {}
     }
     piece_map
