@@ -51,7 +51,8 @@ impl GameState {
         if self.board.piece_at(start).is_none() {
             false
         } else {
-            let movement = Movement::from_with_state(start, destination, self);
+            let movement =
+                Movement::from_with_state(start, destination, self, self.additional_board_data);
             if validate_move(movement.clone()) {
                 self.board[destination as usize] = self.board[start as usize];
                 self.board[start as usize] = None;
@@ -104,7 +105,7 @@ impl GameState {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Copy, Clone)]
 pub struct AdditionalBoardData {
     pub castling_status: ((bool, bool), (bool, bool)),
     pub en_passant_square: Option<BoardIndex>,

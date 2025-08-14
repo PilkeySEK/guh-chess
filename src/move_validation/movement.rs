@@ -1,6 +1,6 @@
 use crate::{
     board::{Board, BoardExt, BoardIndex, Color, PieceType},
-    state::GameState,
+    state::{AdditionalBoardData, GameState},
 };
 
 #[derive(Clone)]
@@ -11,7 +11,12 @@ pub struct Movement {
 }
 
 impl Movement {
-    pub fn from_with_state(start: BoardIndex, destination: BoardIndex, state: &GameState) -> Self {
+    pub fn from_with_state(
+        start: BoardIndex,
+        destination: BoardIndex,
+        state: &GameState,
+        board_data: AdditionalBoardData,
+    ) -> Self {
         Self {
             start: start,
             destination: destination,
@@ -25,6 +30,7 @@ impl Movement {
                 piece_type: state.board.piece_at(start).unwrap().piece_type,
                 piece_color: state.board.piece_at(start).unwrap().color,
                 turn: state.turn,
+                board_data: board_data,
             },
         }
     }
@@ -37,6 +43,7 @@ pub struct MovementInformation {
     pub piece_type: PieceType,
     pub piece_color: Color,
     pub turn: Color,
+    pub board_data: AdditionalBoardData,
 }
 
 impl MovementInformation {
@@ -46,6 +53,7 @@ impl MovementInformation {
         piece_type: PieceType,
         piece_color: Color,
         turn: Color,
+        board_data: AdditionalBoardData,
     ) -> Self {
         Self {
             capturing: capturing,
@@ -53,6 +61,7 @@ impl MovementInformation {
             piece_type: piece_type,
             piece_color: piece_color,
             turn: turn,
+            board_data: board_data,
         }
     }
 }
