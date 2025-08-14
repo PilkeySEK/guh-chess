@@ -1,21 +1,23 @@
 use eframe::egui::{
-    self, Color32, CornerRadius, ImageSource, Pos2, Rect, Ui, Vec2, ViewportCommand,
+    self, Align2, Color32, CornerRadius, FontId, ImageSource, Pos2, Rect, Ui, Vec2, ViewportCommand,
 };
 
 use crate::{
     BOARD_SQUARE_SIZE, BOARD_SQUARES, ChessApp,
     board::{Color, Piece, PieceType},
     move_validation::validator::generate_piece_map,
-    util::board_size_vec2,
+    positions::turn_info_text_position,
+    util::{board_size_vec2, viewport_size_vec2},
 };
 
 pub fn resize(ctx: &egui::Context) {
-    ctx.send_viewport_cmd(ViewportCommand::InnerSize(board_size_vec2()));
+    ctx.send_viewport_cmd(ViewportCommand::InnerSize(viewport_size_vec2()));
 }
 
 pub fn render(app: &ChessApp, ui: &mut Ui, painter: &mut egui::Painter) {
     render_board_squares(app, painter);
     render_pieces(app, ui);
+    render_info(app, painter);
 }
 
 fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
@@ -130,4 +132,22 @@ fn make_rect_for_index(index: u16) -> Rect {
         ((index / BOARD_SQUARES) * BOARD_SQUARE_SIZE) as f32,
     );
     Rect::from_min_size(Pos2::from(pos), Vec2::splat(BOARD_SQUARE_SIZE as f32))
+}
+
+fn render_info(app: &ChessApp, painter: &mut egui::Painter) {
+    painter.text(
+        turn_info_text_position(),
+        Align2::LEFT_CENTER,
+        format!(
+            "{} to move",
+            if app.state.turn == Color::White {
+                "White"
+            } else {
+                "Black"
+            }
+        ),
+        FontId::monospace(15.0),
+        Color32::WHITE,
+    );
+    //println!("Text render pos: {}", pos);
 }

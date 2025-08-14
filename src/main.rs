@@ -3,11 +3,12 @@ use eframe::egui::{self, Pos2, Rect, Sense, Vec2, ViewportBuilder};
 use crate::{
     board::{BoardIndex, BoardIndexExt, Color},
     state::GameState,
-    util::board_size_vec2,
+    util::{board_size_vec2, viewport_size_vec2},
 };
 
 mod board;
 mod move_validation;
+mod positions;
 mod rendering;
 mod state;
 mod util;
@@ -69,8 +70,9 @@ impl eframe::App for ChessApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             rendering::resize(ctx);
             let board_rect = Rect::from_min_size(Pos2::ZERO, board_size_vec2());
+            let viewport_rect = Rect::from_min_size(Pos2::ZERO, viewport_size_vec2());
             let response = ui.allocate_rect(board_rect, Sense::click());
-            let mut painter = ui.painter_at(board_rect);
+            let mut painter = ui.painter_at(viewport_rect);
             rendering::render(self, ui, &mut painter);
             if response.clicked() {
                 self.on_click(
