@@ -234,6 +234,34 @@ pub fn generate_piece_map(
                 }
             }
         }
+        PieceType::Rook => {
+            let modifiers = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+            for modifier in modifiers {
+                let mut current_pos = (
+                    xy_index.0 as i32 + modifier.0,
+                    xy_index.1 as i32 + modifier.1,
+                );
+                let mut limit = BOARD_SQUARES as i32;
+                while limit >= 0 {
+                    if !validate_i32_pos(current_pos) {
+                        break;
+                    }
+                    let current_pos_index = (current_pos.0 as u16, current_pos.1 as u16).to_index();
+                    let current_piece = board.piece_at(current_pos_index);
+                    if current_piece.is_none() {
+                        piece_map.push(current_pos_index);
+                    } else if current_piece.is_some_and(|p| p.color != piece.color) {
+                        piece_map.push(current_pos_index);
+                        break;
+                    } else {
+                        break;
+                    }
+                    current_pos.0 += modifier.0;
+                    current_pos.1 += modifier.1;
+                    limit -= 1;
+                }
+            }
+        }
         _ => {}
     }
     piece_map
@@ -267,10 +295,7 @@ fn adjacent_knight_squares(index: BoardIndex) -> Vec<BoardIndex> {
     adjacent_squares_from_modifiers(index, &modifiers)
 }
 
-fn adjacent_squares_from_modifiers(
-    index: BoardIndex,
-    modifiers: &[(i32, i32)],
-) -> Vec<BoardIndex> {
+fn adjacent_squares_from_modifiers(index: BoardIndex, modifiers: &[(i32, i32)]) -> Vec<BoardIndex> {
     let xy_index = index.to_xy();
     let mut adjacent = Vec::new();
     for ele in modifiers {
@@ -285,4 +310,8 @@ fn adjacent_squares_from_modifiers(
         adjacent.push((new_index.0 as u16, new_index.1 as u16).to_index());
     }
     adjacent
+}
+
+fn validate_i32_pos(pos: (i32, i32)) -> bool {
+    pos.0 >= 0 && pos.1 >= 0 && pos.0 < BOARD_SQUARES as i32 && pos.1 < BOARD_SQUARES as i32
 }
