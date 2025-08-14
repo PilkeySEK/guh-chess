@@ -218,7 +218,71 @@ pub fn generate_piece_map(
                 }
             }
         }
+        PieceType::King => {
+            let adjacent_squares = adjacent_king_squares(piece_index);
+            for ele in adjacent_squares {
+                if board.piece_at(ele).is_none_or(|p| p.color != piece.color) {
+                    piece_map.push(ele);
+                }
+            }
+        }
+        PieceType::Knight => {
+            let adjacent_squares = adjacent_knight_squares(piece_index);
+            for ele in adjacent_squares {
+                if board.piece_at(ele).is_none_or(|p| p.color != piece.color) {
+                    piece_map.push(ele);
+                }
+            }
+        }
         _ => {}
     }
     piece_map
+}
+
+fn adjacent_king_squares(index: BoardIndex) -> Vec<BoardIndex> {
+    let modifiers = [
+        (-1, 0),
+        (1, 0),
+        (0, -1),
+        (0, 1),
+        (1, 1),
+        (-1, -1),
+        (-1, 1),
+        (1, -1),
+    ];
+    adjacent_squares_from_modifiers(index, &modifiers)
+}
+
+fn adjacent_knight_squares(index: BoardIndex) -> Vec<BoardIndex> {
+    let modifiers = [
+        (2, 1),
+        (1, 2),
+        (-1, -2),
+        (-2, -1),
+        (-2, 1),
+        (2, -1),
+        (1, -2),
+        (-1, 2),
+    ];
+    adjacent_squares_from_modifiers(index, &modifiers)
+}
+
+fn adjacent_squares_from_modifiers(
+    index: BoardIndex,
+    modifiers: &[(i32, i32)],
+) -> Vec<BoardIndex> {
+    let xy_index = index.to_xy();
+    let mut adjacent = Vec::new();
+    for ele in modifiers {
+        let new_index = (xy_index.0 as i32 + ele.0, xy_index.1 as i32 + ele.1);
+        if new_index.0 < 0
+            || new_index.0 >= BOARD_SQUARES as i32
+            || new_index.1 < 0
+            || new_index.1 >= BOARD_SQUARES as i32
+        {
+            continue;
+        }
+        adjacent.push((new_index.0 as u16, new_index.1 as u16).to_index());
+    }
+    adjacent
 }
