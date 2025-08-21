@@ -49,13 +49,9 @@ impl ChessApp {
         if self.state.selected_square.is_none() {
             self.state.selected_square = Some(index);
         } else {
-            let piece_moved = self
-                .state
+            self.state
                 .move_piece(self.state.selected_square.unwrap(), index);
             self.state.selected_square = None;
-            if piece_moved {
-                self.state.switch_turn();
-            }
         }
     }
 }

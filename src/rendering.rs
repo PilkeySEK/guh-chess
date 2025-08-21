@@ -54,6 +54,7 @@ fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
             &app.state.additional_board_data,
             app.state.turn,
             selected_square,
+            true,
         );
         for sq in possible_squares {
             painter.rect_filled(

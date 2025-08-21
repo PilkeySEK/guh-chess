@@ -3,7 +3,7 @@ use crate::{
     move_validation::{movement::Movement, validator::validate_move},
 };
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct GameState {
     pub board: Board,
     pub selected_square: Option<BoardIndex>,
@@ -35,13 +35,24 @@ impl GameState {
     /// Moves the piece from `start` to `destination`. This function validates the move fully.
     /// Returns `false` if the move is invalid and the move was not performed.
     /// Returns `true` if the move is valid and the piece was moved.
-    pub fn move_piece(&mut self, start: BoardIndex, destination: BoardIndex) -> bool {
+    /// Also switches the turn.
+    fn _move_piece(
+        &mut self,
+        start: BoardIndex,
+        destination: BoardIndex,
+        bypass_validation: bool,
+    ) -> bool {
         if self.board.piece_at(start).is_none() {
             false
         } else {
             let movement =
                 Movement::from_with_state(start, destination, self, self.additional_board_data);
-            if validate_move(movement.clone()) {
+            let validation = if bypass_validation {
+                true
+            } else {
+                validate_move(movement.clone())
+            };
+            if validation {
                 self.board[destination as usize] = self.board[start as usize];
                 self.board[start as usize] = None;
                 self.set_en_passant_square(movement.clone());
@@ -56,11 +67,24 @@ impl GameState {
                     destination_xy.1 = (destination_xy.1 as i32 + modifier) as u16;
                     self.board[destination_xy.to_index() as usize] = None;
                 }
+                self.switch_turn();
                 true
             } else {
                 false
             }
         }
+    }
+
+    pub fn move_piece(&mut self, start: BoardIndex, destination: BoardIndex) -> bool {
+        self._move_piece(start, destination, false)
+    }
+
+    pub fn move_piece_bypass_validation(
+        &mut self,
+        start: BoardIndex,
+        destination: BoardIndex,
+    ) -> bool {
+        self._move_piece(start, destination, true)
     }
 
     /// Only sets the square if the moved piece was a pawn and it was moved 2 squares, else sets it to None
@@ -90,6 +114,15 @@ impl GameState {
     pub fn check_for_en_passant(&self, m: Movement) -> bool {
         // if destination square is None but capturing is true
         m.movement_info.board.piece_at(m.destination).is_none() && m.movement_info.capturing
+    }
+
+    pub fn from(board: Board, additional_board_data: AdditionalBoardData, turn: Color) -> Self {
+        Self {
+            board: board,
+            additional_board_data: additional_board_data,
+            turn: turn,
+            selected_square: None,
+        }
     }
 }
 

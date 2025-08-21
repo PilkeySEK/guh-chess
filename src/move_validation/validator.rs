@@ -2,21 +2,24 @@ use crate::{
     BOARD_SQUARES,
     board::{Board, BoardExt, BoardIndex, BoardIndexExt, BoardIndexXYExt, Color, Piece, PieceType},
     move_validation::movement::Movement,
-    state::AdditionalBoardData,
+    state::{AdditionalBoardData, GameState},
 };
 
 pub fn validate_move(m: Movement) -> bool {
     if m.movement_info.piece_color != m.movement_info.turn {
-        false
-    } else {
-        generate_piece_map(
-            &m.movement_info.board,
-            &m.movement_info.board_data,
-            m.movement_info.turn,
-            m.start,
-        )
-        .contains(&m.destination)
+        return false;
     }
+    let current_piece_map = generate_piece_map(
+        &m.movement_info.board,
+        &m.movement_info.board_data,
+        m.movement_info.turn,
+        m.start,
+        true,
+    );
+    if !current_piece_map.contains(&m.destination) {
+        return false;
+    }
+    true
 }
 
 /// Creates a list of all possible destinations
@@ -25,6 +28,7 @@ pub fn generate_piece_map(
     board_data: &AdditionalBoardData,
     turn: Color,
     piece_index: BoardIndex,
+    check_checks: bool,
 ) -> Vec<BoardIndex> {
     let mut piece_map: Vec<BoardIndex> = Vec::new();
 
@@ -143,7 +147,63 @@ pub fn generate_piece_map(
             }
         }
     }
+
+    if check_checks {
+        let mut removed_map_items = 0;
+        for map_item in piece_map.clone().iter().enumerate() {
+            if puts_king_in_danger(board, board_data.clone(), turn, piece_index, *map_item.1) {
+                piece_map.remove(map_item.0 - removed_map_items);
+                removed_map_items += 1;
+            }
+        }
+    }
+
     piece_map
+}
+
+fn puts_king_in_danger(
+    board: &Board,
+    board_data: AdditionalBoardData,
+    turn: Color,
+    start: BoardIndex,
+    destination: BoardIndex,
+) -> bool {
+    let mut next_state = GameState::from(board.clone(), board_data, turn);
+    next_state.move_piece_bypass_validation(start, destination);
+
+    // Using a list of kings instead of a simple BoardIndex variable to have the possibility of multiple kings of the same color existing (fun!)
+    let mut kings: Vec<BoardIndex> = Vec::new();
+
+    for piece in next_state.board.iter().enumerate() {
+        if piece
+            .1
+            .is_some_and(|p| p.piece_type == PieceType::King && p.color == turn)
+        {
+            kings.push(piece.0 as BoardIndex);
+        }
+    }
+
+    for piece in next_state.board.iter().enumerate() {
+        if piece.1.is_none() {
+            continue;
+        }
+        if piece.1.unwrap().color == turn {
+            continue;
+        }
+        let next_piece_map = generate_piece_map(
+            &next_state.board,
+            &next_state.additional_board_data,
+            next_state.turn,
+            piece.0 as BoardIndex,
+            false,
+        );
+        for king in kings.clone() {
+            if next_piece_map.contains(&king) {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 fn adjacent_king_squares(index: BoardIndex) -> Vec<BoardIndex> {
