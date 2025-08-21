@@ -104,7 +104,7 @@ pub fn generate_piece_map(
             }
         }
         PieceType::King => {
-            let adjacent_squares = adjacent_king_squares(piece_index);
+            let adjacent_squares = king_piece_map(piece_index, board, board_data);
             for ele in adjacent_squares {
                 if board.piece_at(ele).is_none_or(|p| p.color != piece.color) {
                     piece_map.push(ele);
@@ -206,7 +206,11 @@ fn puts_king_in_danger(
     false
 }
 
-fn adjacent_king_squares(index: BoardIndex) -> Vec<BoardIndex> {
+fn king_piece_map(
+    index: BoardIndex,
+    board: &Board,
+    board_data: &AdditionalBoardData,
+) -> Vec<BoardIndex> {
     let modifiers = [
         (-1, 0),
         (1, 0),
@@ -217,7 +221,11 @@ fn adjacent_king_squares(index: BoardIndex) -> Vec<BoardIndex> {
         (-1, 1),
         (1, -1),
     ];
-    adjacent_squares_from_modifiers(index, &modifiers)
+    let mut piece_map = adjacent_squares_from_modifiers(index, &modifiers);
+    if may_castle_short(board, index, board.piece_at(index).unwrap(), board_data) {
+        piece_map.push(index + 2);
+    }
+    piece_map
 }
 
 fn adjacent_knight_squares(index: BoardIndex) -> Vec<BoardIndex> {
@@ -289,4 +297,68 @@ fn get_piece_map_from_modifiers(
         }
     }
     piece_map
+}
+
+fn may_castle_short(
+    board: &Board,
+    index: BoardIndex,
+    piece: Piece,
+    board_data: &AdditionalBoardData,
+) -> bool {
+    match piece.color {
+        Color::White => {
+            if board_data.castling_status.0.0 == false {
+                return false;
+            }
+            if board.piece_at(index + 1).is_none() && board.piece_at(index + 2).is_none() {
+                let enemy_map =
+                    generate_piece_map_for_all_enemy_pieces(board, piece.color, board_data);
+                if enemy_map.contains(&index)
+                    || enemy_map.contains(&(index + 1))
+                    || enemy_map.contains(&(index + 2))
+                {
+                    return false;
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+        Color::Black => {
+            if board_data.castling_status.0.0 == false {
+                return false;
+            }
+            if board.piece_at(index + 1).is_none() && board.piece_at(index + 2).is_none() {
+                let enemy_map =
+                    generate_piece_map_for_all_enemy_pieces(board, piece.color, board_data);
+                if enemy_map.contains(&index)
+                    || enemy_map.contains(&(index + 1))
+                    || enemy_map.contains(&(index + 2))
+                {
+                    return false;
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+}
+
+fn generate_piece_map_for_all_enemy_pieces(
+    board: &Board,
+    turn: Color,
+    board_data: &AdditionalBoardData,
+) -> Vec<BoardIndex> {
+    let mut final_piece_map = Vec::new();
+    for piece in board.iter().enumerate() {
+        if !piece.1.is_some_and(|p| p.color != turn) {
+            continue;
+        }
+        let piece_map = generate_piece_map(board, board_data, turn, piece.0 as BoardIndex, false);
+        for piece_map_elem in piece_map {
+            final_piece_map.push(piece_map_elem);
+        }
+    }
+    final_piece_map
 }

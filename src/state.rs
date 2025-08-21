@@ -1,7 +1,10 @@
 use crate::{
-    board::{Board, BoardExt, BoardIndex, BoardIndexExt, BoardIndexXYExt, Color, PieceType},
+    board::{Board, BoardExt, BoardIndex, BoardIndexExt, BoardIndexXYExt, Color, Piece, PieceType},
     move_validation::{movement::Movement, validator::validate_move},
 };
+
+const WHITE_KING_CASTLING_INDEX: BoardIndex = 60;
+const BLACK_KING_CASTLING_INDEX: BoardIndex = 4;
 
 #[derive(Default, Clone)]
 pub struct GameState {
@@ -57,6 +60,7 @@ impl GameState {
                 self.board[start as usize] = None;
                 self.set_en_passant_square(movement.clone());
                 let en_passant = self.check_for_en_passant(movement.clone());
+                let castle = self.check_for_castle(movement.clone());
                 if en_passant {
                     let modifier: i32 = if movement.movement_info.piece_color == Color::White {
                         1
@@ -66,6 +70,26 @@ impl GameState {
                     let mut destination_xy = movement.destination.to_xy();
                     destination_xy.1 = (destination_xy.1 as i32 + modifier) as u16;
                     self.board[destination_xy.to_index() as usize] = None;
+                } else if castle != 0 {
+                    if castle == 1 {
+                        if movement.movement_info.piece_color == Color::White {
+                            self.board[WHITE_KING_CASTLING_INDEX as usize] = None;
+                            self.board[WHITE_KING_CASTLING_INDEX as usize + 2] =
+                                Some(Piece::new(PieceType::King, Color::White));
+                            self.board[WHITE_KING_CASTLING_INDEX as usize + 3] = None;
+                            self.board[WHITE_KING_CASTLING_INDEX as usize + 1] =
+                                Some(Piece::new(PieceType::Rook, Color::White));
+                        } else {
+                            self.board[BLACK_KING_CASTLING_INDEX as usize] = None;
+                            self.board[BLACK_KING_CASTLING_INDEX as usize + 2] =
+                                Some(Piece::new(PieceType::King, Color::Black));
+                            self.board[BLACK_KING_CASTLING_INDEX as usize + 3] = None;
+                            self.board[BLACK_KING_CASTLING_INDEX as usize + 1] =
+                                Some(Piece::new(PieceType::Rook, Color::Black));
+                        }
+                    } else {
+                        todo!();
+                    }
                 }
                 self.switch_turn();
                 true
@@ -114,6 +138,21 @@ impl GameState {
     pub fn check_for_en_passant(&self, m: Movement) -> bool {
         // if destination square is None but capturing is true
         m.movement_info.board.piece_at(m.destination).is_none() && m.movement_info.capturing
+    }
+
+    /// Returns 0 if no castle, 1 if short, 2 if long
+    pub fn check_for_castle(&self, m: Movement) -> u8 {
+        if m.movement_info.piece_type != PieceType::King {
+            return 0;
+        }
+        let x_distance = (m.destination.to_xy().0 as i32 - m.start.to_xy().0 as i32).abs();
+        if x_distance == 2 {
+            return 1;
+        }
+        if x_distance == 3 {
+            return 2;
+        }
+        return 0;
     }
 
     pub fn from(board: Board, additional_board_data: AdditionalBoardData, turn: Color) -> Self {
