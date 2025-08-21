@@ -325,7 +325,7 @@ fn may_castle_short(
             }
         }
         Color::Black => {
-            if board_data.castling_status.0.0 == false {
+            if board_data.castling_status.1.0 == false {
                 return false;
             }
             if board.piece_at(index + 1).is_none() && board.piece_at(index + 2).is_none() {
