@@ -89,7 +89,21 @@ impl GameState {
                                 Some(Piece::new(PieceType::Rook, Color::Black));
                         }
                     } else {
-                        todo!();
+                        if movement.movement_info.piece_color == Color::White {
+                            self.board[WHITE_KING_CASTLING_INDEX as usize] = None;
+                            self.board[WHITE_KING_CASTLING_INDEX as usize - 2] =
+                                Some(Piece::new(PieceType::King, Color::White));
+                            self.board[WHITE_KING_CASTLING_INDEX as usize - 4] = None;
+                            self.board[WHITE_KING_CASTLING_INDEX as usize - 1] =
+                                Some(Piece::new(PieceType::Rook, Color::White));
+                        } else {
+                            self.board[BLACK_KING_CASTLING_INDEX as usize] = None;
+                            self.board[BLACK_KING_CASTLING_INDEX as usize - 2] =
+                                Some(Piece::new(PieceType::King, Color::Black));
+                            self.board[BLACK_KING_CASTLING_INDEX as usize - 4] = None;
+                            self.board[BLACK_KING_CASTLING_INDEX as usize - 1] =
+                                Some(Piece::new(PieceType::Rook, Color::Black));
+                        }
                     }
                 }
                 self.switch_turn();
@@ -147,10 +161,13 @@ impl GameState {
             return 0;
         }
         let x_distance = (m.destination.to_xy().0 as i32 - m.start.to_xy().0 as i32).abs();
-        if x_distance == 2 {
+        if x_distance != 2 {
+            return 0;
+        }
+        if m.start < m.destination {
             return 1;
         }
-        if x_distance == 3 {
+        if m.start > m.destination {
             return 2;
         }
         return 0;

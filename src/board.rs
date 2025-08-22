@@ -4,14 +4,24 @@ use eframe::egui::Pos2;
 
 use crate::{BOARD_SQUARE_SIZE, BOARD_SQUARES};
 
-#[derive(Default, Clone, Copy, PartialEq)]
+#[derive(Default, Clone, Copy, PartialEq, Debug)]
 pub enum Color {
     #[default]
     White,
     Black,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+impl Color {
+    pub fn opposite(self) -> Self {
+        if self == Color::White {
+            Color::Black
+        } else {
+            Color::White
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum PieceType {
     Pawn,
     Knight,
@@ -21,7 +31,7 @@ pub enum PieceType {
     King,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Piece {
     pub color: Color,
     pub piece_type: PieceType,
