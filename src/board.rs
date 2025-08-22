@@ -21,13 +21,14 @@ impl Color {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Default)]
 pub enum PieceType {
     Pawn,
     Knight,
     Bishop,
     Rook,
     Queen,
+    #[default]
     King,
 }
 

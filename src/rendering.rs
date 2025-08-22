@@ -7,7 +7,7 @@ use crate::{
     board::{Color, Piece, PieceType},
     move_validation::validator::generate_piece_map,
     positions::turn_info_text_position,
-    util::{board_size_vec2, viewport_size_vec2},
+    util::{board_size_vec2, promotion_selection_rect, viewport_size_vec2},
 };
 
 pub fn resize(ctx: &egui::Context) {
@@ -18,9 +18,7 @@ pub fn render(app: &ChessApp, ui: &mut Ui, painter: &mut egui::Painter) {
     render_board_squares(app, painter);
     render_pieces(app, ui);
     render_info(app, painter);
-    if app.state.awaiting_promotion.is_some() {
-        render_promotion_selection(app, painter);
-    }
+    render_promotion_selection(app, painter);
 }
 
 fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
@@ -157,10 +155,7 @@ fn render_info(app: &ChessApp, painter: &mut egui::Painter) {
 
 fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter) {
     painter.rect_filled(
-        Rect {
-            min: Pos2::new(25.0, 25.0),
-            max: Pos2::new(75.0, 75.0),
-        },
+        promotion_selection_rect(),
         CornerRadius::ZERO,
         Color32::WHITE,
     );
