@@ -12,6 +12,7 @@ pub struct GameState {
     pub selected_square: Option<BoardIndex>,
     pub turn: Color,
     pub additional_board_data: AdditionalBoardData,
+    pub awaiting_promotion: Option<(Color, BoardIndex)>,
 }
 
 impl GameState {
@@ -24,6 +25,7 @@ impl GameState {
                 en_passant_square: None,
             },
             selected_square: None,
+            awaiting_promotion: None,
         }
     }
 
@@ -62,6 +64,7 @@ impl GameState {
                 let en_passant = self.check_for_en_passant(movement.clone());
                 let castle = self.check_for_castle(movement.clone());
                 self.check_for_castle_disabling_move(movement.clone());
+                self.check_for_promotion(movement.clone());
                 if en_passant {
                     let modifier: i32 = if movement.movement_info.piece_color == Color::White {
                         1
@@ -198,12 +201,27 @@ impl GameState {
         }
     }
 
+    pub fn check_for_promotion(&mut self, m: Movement) {
+        if m.movement_info.piece_type != PieceType::Pawn {
+            self.awaiting_promotion = None;
+            return;
+        }
+        if m.movement_info.piece_color == Color::White && m.destination.to_xy().0 == 0 {
+            self.awaiting_promotion = Some((Color::White, m.destination));
+        } else if m.movement_info.piece_color == Color::Black && m.destination.to_xy().0 == 7 {
+            self.awaiting_promotion = Some((Color::Black, m.destination));
+        } else {
+            self.awaiting_promotion = None;
+        }
+    }
+
     pub fn from(board: Board, additional_board_data: AdditionalBoardData, turn: Color) -> Self {
         Self {
             board: board,
             additional_board_data: additional_board_data,
             turn: turn,
             selected_square: None,
+            awaiting_promotion: None,
         }
     }
 }

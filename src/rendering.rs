@@ -18,6 +18,9 @@ pub fn render(app: &ChessApp, ui: &mut Ui, painter: &mut egui::Painter) {
     render_board_squares(app, painter);
     render_pieces(app, ui);
     render_info(app, painter);
+    if app.state.awaiting_promotion.is_some() {
+        render_promotion_selection(app, painter);
+    }
 }
 
 fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
@@ -148,6 +151,17 @@ fn render_info(app: &ChessApp, painter: &mut egui::Painter) {
             }
         ),
         FontId::monospace(15.0),
+        Color32::WHITE,
+    );
+}
+
+fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter) {
+    painter.rect_filled(
+        Rect {
+            min: Pos2::new(25.0, 25.0),
+            max: Pos2::new(75.0, 75.0),
+        },
+        CornerRadius::ZERO,
         Color32::WHITE,
     );
 }

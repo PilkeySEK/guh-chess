@@ -3,7 +3,7 @@ use eframe::egui::{self, Pos2, Rect, Sense, Vec2, ViewportBuilder};
 use crate::{
     board::{BoardIndex, BoardIndexExt},
     state::GameState,
-    util::{board_size_vec2, viewport_size_vec2},
+    util::{board_size_vec2, promotion_selection_rect, promotion_size_vec2, viewport_size_vec2},
 };
 
 mod board;
@@ -44,6 +44,9 @@ impl ChessApp {
     }
 
     pub fn on_click(&mut self, pos: Pos2) {
+        if self.state.awaiting_promotion.is_some() {
+            return;
+        }
         let index = BoardIndex::from_screen_click(pos);
         // either select square or move piece
         if self.state.selected_square.is_none() {
@@ -54,6 +57,10 @@ impl ChessApp {
             self.state.selected_square = None;
         }
     }
+
+    pub fn on_promotion_click(&mut self, pos: Pos2) {
+        println!("Promotion clicked at {} {}", pos.x, pos.y);
+    }
 }
 
 impl eframe::App for ChessApp {
@@ -61,13 +68,22 @@ impl eframe::App for ChessApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             rendering::resize(ctx);
             let board_rect = Rect::from_min_size(Pos2::ZERO, board_size_vec2());
+            let promotion_rect = promotion_selection_rect();
             let viewport_rect = Rect::from_min_size(Pos2::ZERO, viewport_size_vec2());
             let response = ui.allocate_rect(board_rect, Sense::click());
+            let promotion_response = ui.allocate_rect(promotion_rect, Sense::click());
             let mut painter = ui.painter_at(viewport_rect);
             rendering::render(self, ui, &mut painter);
             if response.clicked() {
                 self.on_click(
                     (response.interact_pointer_pos().unwrap() - response.rect.min).to_pos2(),
+                );
+            }
+            if promotion_response.clicked() {
+                self.on_promotion_click(
+                    (promotion_response.interact_pointer_pos().unwrap()
+                        - promotion_response.rect.min)
+                        .to_pos2(),
                 );
             }
         });
