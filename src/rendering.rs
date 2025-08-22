@@ -150,5 +150,4 @@ fn render_info(app: &ChessApp, painter: &mut egui::Painter) {
         FontId::monospace(15.0),
         Color32::WHITE,
     );
-    //println!("Text render pos: {}", pos);
 }
