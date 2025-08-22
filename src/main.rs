@@ -3,7 +3,7 @@ use eframe::egui::{self, Pos2, Rect, Sense, Vec2, ViewportBuilder};
 use crate::{
     board::{BoardIndex, BoardIndexExt},
     state::GameState,
-    util::{board_size_vec2, promotion_selection_rect, promotion_size_vec2, viewport_size_vec2},
+    util::{board_size_vec2, promotion_selection_rect, viewport_size_vec2},
 };
 
 mod board;
