@@ -210,7 +210,6 @@ impl GameState {
 
 #[derive(Default, Copy, Clone)]
 pub struct AdditionalBoardData {
-    #[allow(dead_code)]
     // (white:short,white:long),(black:short,black:long)
     pub castling_status: ((bool, bool), (bool, bool)),
     pub en_passant_square: Option<BoardIndex>,
