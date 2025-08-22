@@ -61,6 +61,7 @@ impl GameState {
                 self.set_en_passant_square(movement.clone());
                 let en_passant = self.check_for_en_passant(movement.clone());
                 let castle = self.check_for_castle(movement.clone());
+                self.check_for_castle_disabling_move(movement.clone());
                 if en_passant {
                     let modifier: i32 = if movement.movement_info.piece_color == Color::White {
                         1
@@ -153,6 +154,31 @@ impl GameState {
             return 2;
         }
         return 0;
+    }
+
+    pub fn check_for_castle_disabling_move(&mut self, m: Movement) {
+        if m.movement_info.piece_type == PieceType::King {
+            match m.movement_info.piece_color {
+                Color::White => self.additional_board_data.castling_status.0 = (false, false),
+                Color::Black => self.additional_board_data.castling_status.1 = (false, false),
+            }
+        } else if m.destination == WHITE_KING_CASTLING_INDEX + 3
+            || m.start == WHITE_KING_CASTLING_INDEX + 3
+        {
+            self.additional_board_data.castling_status.0.0 = false;
+        } else if m.destination == WHITE_KING_CASTLING_INDEX - 4
+            || m.start == WHITE_KING_CASTLING_INDEX - 4
+        {
+            self.additional_board_data.castling_status.0.1 = false;
+        } else if m.destination == BLACK_KING_CASTLING_INDEX + 3
+            || m.start == BLACK_KING_CASTLING_INDEX + 3
+        {
+            self.additional_board_data.castling_status.1.0 = false;
+        } else if m.destination == BLACK_KING_CASTLING_INDEX - 4
+            || m.start == BLACK_KING_CASTLING_INDEX - 4
+        {
+            self.additional_board_data.castling_status.1.1 = false;
+        }
     }
 
     pub fn from(board: Board, additional_board_data: AdditionalBoardData, turn: Color) -> Self {
