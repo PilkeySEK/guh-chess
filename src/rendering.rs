@@ -8,7 +8,8 @@ use crate::{
     move_validation::validator::generate_piece_map,
     positions::turn_info_text_position,
     util::{
-        board_size_vec2, promotion_selection_rect, promotion_selection_rect_pos, viewport_size_vec2,
+        board_size_vec2, promotion_pieces, promotion_selection_rect, promotion_selection_rect_pos,
+        viewport_size_vec2,
     },
 };
 
@@ -168,12 +169,7 @@ fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter, ui: &
     let piece_color = app.state.awaiting_promotion.unwrap().0;
 
     let mut current_pos = promotion_selection_rect_pos();
-    let pieces = [
-        PieceType::Queen,
-        PieceType::Rook,
-        PieceType::Bishop,
-        PieceType::Knight,
-    ];
+    let pieces = promotion_pieces();
     for i in 0..4 {
         render_piece_at_screen_pos(
             &Piece {

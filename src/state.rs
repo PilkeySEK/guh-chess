@@ -111,7 +111,9 @@ impl GameState {
                         }
                     }
                 }
-                self.switch_turn();
+                if self.awaiting_promotion.is_none() {
+                    self.switch_turn();
+                }
                 true
             } else {
                 false

@@ -1,9 +1,12 @@
 use eframe::egui::{self, Pos2, Rect, Sense, Vec2, ViewportBuilder};
 
 use crate::{
-    board::{BoardIndex, BoardIndexExt},
+    board::{BoardIndex, BoardIndexExt, Piece},
     state::GameState,
-    util::{board_size_vec2, promotion_selection_rect, viewport_size_vec2},
+    util::{
+        board_size_vec2, promotion_pieces, promotion_selection_rect, promotion_selection_rect_pos,
+        viewport_size_vec2,
+    },
 };
 
 mod board;
@@ -59,7 +62,16 @@ impl ChessApp {
     }
 
     pub fn on_promotion_click(&mut self, pos: Pos2) {
-        println!("Promotion clicked at {} {}", pos.x, pos.y);
+        if self.state.awaiting_promotion.is_none() {
+            return;
+        }
+        let piece = ((pos.y - promotion_selection_rect_pos().y) / (BOARD_SQUARE_SIZE as f32))
+            .round() as usize;
+        let piece = promotion_pieces()[piece];
+        self.state.board[self.state.awaiting_promotion.unwrap().1 as usize] =
+            Some(Piece::new(piece, self.state.turn));
+        self.state.awaiting_promotion = None;
+        self.state.switch_turn();
     }
 }
 

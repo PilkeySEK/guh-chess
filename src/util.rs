@@ -1,4 +1,4 @@
-use crate::{BOARD_SQUARE_SIZE, BOARD_SQUARES};
+use crate::{BOARD_SQUARE_SIZE, BOARD_SQUARES, board::PieceType};
 use eframe::egui::{Pos2, Rect, Vec2};
 
 pub fn board_size_vec2() -> Vec2 {
@@ -23,4 +23,13 @@ pub fn promotion_selection_rect_pos() -> Pos2 {
 
 pub fn promotion_selection_rect() -> Rect {
     Rect::from_min_size(promotion_selection_rect_pos(), promotion_size_vec2())
+}
+
+pub fn promotion_pieces() -> [PieceType; 4] {
+    [
+        PieceType::Queen,
+        PieceType::Rook,
+        PieceType::Bishop,
+        PieceType::Knight,
+    ]
 }
