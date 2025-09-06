@@ -154,6 +154,9 @@ fn render_info(app: &ChessApp, painter: &mut egui::Painter) {
 }
 
 fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter) {
+    if app.state.awaiting_promotion.is_none() {
+        return;
+    }
     painter.rect_filled(
         promotion_selection_rect(),
         CornerRadius::ZERO,
