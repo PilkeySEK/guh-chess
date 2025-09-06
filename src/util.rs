@@ -14,12 +14,13 @@ pub fn promotion_size_vec2() -> Vec2 {
     Vec2::new(BOARD_SQUARE_SIZE as f32, (BOARD_SQUARE_SIZE * 4) as f32)
 }
 
+pub fn promotion_selection_rect_pos() -> Pos2 {
+    Pos2 {
+        x: board_size_vec2().x + 25.0,
+        y: 25.0,
+    }
+}
+
 pub fn promotion_selection_rect() -> Rect {
-    Rect::from_min_size(
-        Pos2 {
-            x: board_size_vec2().x + 25.0,
-            y: 25.0,
-        },
-        promotion_size_vec2(),
-    )
+    Rect::from_min_size(promotion_selection_rect_pos(), promotion_size_vec2())
 }
