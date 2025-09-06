@@ -13,7 +13,6 @@ pub struct GameState {
     pub turn: Color,
     pub additional_board_data: AdditionalBoardData,
     pub awaiting_promotion: Option<(Color, BoardIndex)>,
-    pub selected_promotion: Option<PieceType>,
 }
 
 impl GameState {
@@ -27,7 +26,6 @@ impl GameState {
             },
             selected_square: None,
             awaiting_promotion: None,
-            selected_promotion: None,
         }
     }
 
@@ -226,7 +224,6 @@ impl GameState {
             turn: turn,
             selected_square: None,
             awaiting_promotion: None,
-            selected_promotion: None,
         }
     }
 }
