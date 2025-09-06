@@ -208,9 +208,9 @@ impl GameState {
             self.awaiting_promotion = None;
             return;
         }
-        if m.movement_info.piece_color == Color::White && m.destination.to_xy().0 == 0 {
+        if m.movement_info.piece_color == Color::White && m.destination.to_xy().1 == 0 {
             self.awaiting_promotion = Some((Color::White, m.destination));
-        } else if m.movement_info.piece_color == Color::Black && m.destination.to_xy().0 == 7 {
+        } else if m.movement_info.piece_color == Color::Black && m.destination.to_xy().1 == 7 {
             self.awaiting_promotion = Some((Color::Black, m.destination));
         } else {
             self.awaiting_promotion = None;
