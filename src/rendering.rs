@@ -7,7 +7,9 @@ use crate::{
     board::{Color, Piece, PieceType},
     move_validation::validator::generate_piece_map,
     positions::turn_info_text_position,
-    util::{board_size_vec2, promotion_selection_rect, viewport_size_vec2},
+    util::{
+        board_size_vec2, promotion_selection_rect, promotion_selection_rect_pos, viewport_size_vec2,
+    },
 };
 
 pub fn resize(ctx: &egui::Context) {
@@ -18,7 +20,7 @@ pub fn render(app: &ChessApp, ui: &mut Ui, painter: &mut egui::Painter) {
     render_board_squares(app, painter);
     render_pieces(app, ui);
     render_info(app, painter);
-    render_promotion_selection(app, painter);
+    render_promotion_selection(app, painter, ui);
 }
 
 fn render_board_squares(app: &ChessApp, painter: &mut egui::Painter) {
@@ -77,26 +79,27 @@ fn render_pieces(app: &ChessApp, ui: &mut Ui) {
     }
 }
 
-fn render_piece_at(piece: &Piece, position: (u16, u16), ui: &mut Ui) {
+fn render_piece_at_screen_pos(piece: &Piece, position: Rect, ui: &mut Ui) {
     egui::Image::new(get_piece_image(piece))
         .max_width(BOARD_SQUARE_SIZE as f32)
-        .alt_text(format!(
-            "Failed to render image of piece type={} color={} at {} {}",
-            piece.piece_type as i8, piece.color as i8, position.0, position.1
-        ))
-        .paint_at(
-            ui,
-            Rect {
-                min: Pos2 {
-                    x: (BOARD_SQUARE_SIZE * position.0) as f32,
-                    y: (BOARD_SQUARE_SIZE * position.1) as f32,
-                },
-                max: Pos2 {
-                    x: (BOARD_SQUARE_SIZE * (position.0 + 1)) as f32,
-                    y: (BOARD_SQUARE_SIZE * (position.1 + 1)) as f32,
-                },
+        .paint_at(ui, position);
+}
+
+fn render_piece_at(piece: &Piece, position: (u16, u16), ui: &mut Ui) {
+    render_piece_at_screen_pos(
+        piece,
+        Rect {
+            min: Pos2 {
+                x: (position.0 * BOARD_SQUARE_SIZE) as f32,
+                y: (position.1 * BOARD_SQUARE_SIZE) as f32,
             },
-        );
+            max: Pos2 {
+                x: ((position.0 + 1) * BOARD_SQUARE_SIZE) as f32,
+                y: ((position.1 + 1) * BOARD_SQUARE_SIZE) as f32,
+            },
+        },
+        ui,
+    );
 }
 
 fn get_piece_image(piece: &Piece) -> ImageSource<'static> {
@@ -153,7 +156,7 @@ fn render_info(app: &ChessApp, painter: &mut egui::Painter) {
     );
 }
 
-fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter) {
+fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter, ui: &mut Ui) {
     if app.state.awaiting_promotion.is_none() {
         return;
     }
@@ -162,4 +165,30 @@ fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter) {
         CornerRadius::ZERO,
         Color32::WHITE,
     );
+    let piece_color = app.state.awaiting_promotion.unwrap().0;
+
+    let mut current_pos = promotion_selection_rect_pos();
+    let pieces = [
+        PieceType::Queen,
+        PieceType::Rook,
+        PieceType::Bishop,
+        PieceType::Knight,
+    ];
+    for i in 0..4 {
+        render_piece_at_screen_pos(
+            &Piece {
+                color: piece_color,
+                piece_type: pieces[i],
+            },
+            Rect {
+                min: current_pos,
+                max: Pos2 {
+                    x: current_pos.x + (BOARD_SQUARE_SIZE as f32),
+                    y: current_pos.y + (BOARD_SQUARE_SIZE as f32),
+                },
+            },
+            ui,
+        );
+        current_pos.y += BOARD_SQUARE_SIZE as f32;
+    }
 }
