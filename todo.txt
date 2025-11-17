@@ -1,0 +1,2 @@
+threefold repitition detection
+50 move rule
