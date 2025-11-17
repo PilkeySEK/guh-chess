@@ -5,7 +5,7 @@ use crate::{
     state::{AdditionalBoardData, GameState},
 };
 
-pub fn validate_move(m: Movement) -> bool {
+pub fn validate_move(m: &Movement) -> bool {
     if m.movement_info.piece_color != m.movement_info.turn {
         return false;
     }
@@ -151,7 +151,7 @@ pub fn generate_piece_map(
     if check_checks {
         let mut removed_map_items = 0;
         for map_item in piece_map.clone().iter().enumerate() {
-            if puts_king_in_danger(board, board_data.clone(), turn, piece_index, *map_item.1) {
+            if puts_king_in_danger(board, board_data, turn, piece_index, *map_item.1) {
                 piece_map.remove(map_item.0 - removed_map_items);
                 removed_map_items += 1;
             }
@@ -163,12 +163,12 @@ pub fn generate_piece_map(
 
 fn puts_king_in_danger(
     board: &Board,
-    board_data: AdditionalBoardData,
+    board_data: &AdditionalBoardData,
     turn: Color,
     start: BoardIndex,
     destination: BoardIndex,
 ) -> bool {
-    let mut next_state = GameState::from(board.clone(), board_data, turn);
+    let mut next_state = GameState::from(board.clone(), board_data.clone(), turn);
     next_state.move_piece_bypass_validation(start, destination);
 
     // Using a list of kings instead of a simple BoardIndex variable to have the possibility of multiple kings of the same color existing (fun!)

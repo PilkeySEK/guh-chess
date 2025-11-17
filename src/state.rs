@@ -93,16 +93,16 @@ impl GameState {
             let validation = if bypass_validation {
                 true
             } else {
-                validate_move(movement.clone())
+                validate_move(&movement)
             };
             if validation {
                 self.board[destination as usize] = self.board[start as usize];
                 self.board[start as usize] = None;
-                self.set_en_passant_square(movement.clone());
-                let en_passant = self.check_for_en_passant(movement.clone());
-                let castle = self.check_for_castle(movement.clone());
-                self.check_for_castle_disabling_move(movement.clone());
-                self.check_for_promotion(movement.clone());
+                self.set_en_passant_square(&movement);
+                let en_passant = self.check_for_en_passant(&movement);
+                let castle = self.check_for_castle(&movement);
+                self.check_for_castle_disabling_move(&movement);
+                self.check_for_promotion(&movement);
                 if en_passant {
                     let modifier: i32 = if movement.movement_info.piece_color == Color::White {
                         1
@@ -170,7 +170,7 @@ impl GameState {
     }
 
     /// Only sets the square if the moved piece was a pawn and it was moved 2 squares, else sets it to None
-    pub fn set_en_passant_square(&mut self, m: Movement) {
+    pub fn set_en_passant_square(&mut self, m: &Movement) {
         if m.movement_info.piece_type != PieceType::Pawn {
             self.additional_board_data.en_passant_square = None;
             return;
@@ -193,13 +193,13 @@ impl GameState {
     }
 
     /// Checks if the movement is en passant
-    pub fn check_for_en_passant(&self, m: Movement) -> bool {
+    pub fn check_for_en_passant(&self, m: &Movement) -> bool {
         // if destination square is None but capturing is true
         m.movement_info.board.piece_at(m.destination).is_none() && m.movement_info.capturing
     }
 
     /// Returns 0 if no castle, 1 if short, 2 if long
-    pub fn check_for_castle(&self, m: Movement) -> u8 {
+    pub fn check_for_castle(&self, m: &Movement) -> u8 {
         if m.movement_info.piece_type != PieceType::King {
             return 0;
         }
@@ -216,7 +216,7 @@ impl GameState {
         return 0;
     }
 
-    pub fn check_for_castle_disabling_move(&mut self, m: Movement) {
+    pub fn check_for_castle_disabling_move(&mut self, m: &Movement) {
         if m.movement_info.piece_type == PieceType::King {
             match m.movement_info.piece_color {
                 Color::White => self.additional_board_data.castling_status.0 = (false, false),
@@ -241,7 +241,7 @@ impl GameState {
         }
     }
 
-    pub fn check_for_promotion(&mut self, m: Movement) {
+    pub fn check_for_promotion(&mut self, m: &Movement) {
         if m.movement_info.piece_type != PieceType::Pawn {
             self.awaiting_promotion = None;
             return;
