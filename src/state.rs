@@ -1,10 +1,19 @@
 use crate::{
     board::{Board, BoardExt, BoardIndex, BoardIndexExt, BoardIndexXYExt, Color, Piece, PieceType},
-    move_validation::{movement::Movement, validator::validate_move},
+    move_validation::{
+        movement::Movement,
+        validator::{generate_piece_map, validate_move},
+    },
 };
 
 const WHITE_KING_CASTLING_INDEX: BoardIndex = 60;
 const BLACK_KING_CASTLING_INDEX: BoardIndex = 4;
+
+#[derive(Clone)]
+pub enum GameEndState {
+    Stalemate,
+    Checkmate,
+}
 
 #[derive(Default, Clone)]
 pub struct GameState {
@@ -13,6 +22,7 @@ pub struct GameState {
     pub turn: Color,
     pub additional_board_data: AdditionalBoardData,
     pub awaiting_promotion: Option<(Color, BoardIndex)>,
+    pub winner: Option<(GameEndState, Option<Color>)>,
 }
 
 impl GameState {
@@ -26,15 +36,43 @@ impl GameState {
             },
             selected_square: None,
             awaiting_promotion: None,
+            winner: None,
         }
     }
 
-    pub fn switch_turn(&mut self) {
-        if self.turn == Color::White {
-            self.turn = Color::Black;
-        } else {
-            self.turn = Color::White;
+    /// Change turn from black->white or white->black. Also performs checkmate detection.
+    pub fn switch_turn(&mut self, bypass_validation: bool) {
+        self.turn = self.turn.opposite();
+        if !bypass_validation {
+            if !self.player_has_any_moves(self.turn) {
+                if self.player_has_any_moves(self.turn.opposite()) {
+                    self.winner = Some((GameEndState::Checkmate, Some(self.turn.opposite())));
+                } else {
+                    self.winner = Some((GameEndState::Stalemate, None));
+                }
+            }
         }
+    }
+
+    fn player_has_any_moves(&self, color: Color) -> bool {
+        for (i, _) in self
+            .board
+            .iter()
+            .filter(|e| e.is_some_and(|e2| e2.color == color))
+            .enumerate()
+        {
+            let map = generate_piece_map(
+                &self.board,
+                &self.additional_board_data,
+                color,
+                i as u16,
+                true,
+            );
+            if map.len() != 0 {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// Moves the piece from `start` to `destination`. This function validates the move fully.
@@ -110,7 +148,7 @@ impl GameState {
                     }
                 }
                 if self.awaiting_promotion.is_none() {
-                    self.switch_turn();
+                    self.switch_turn(bypass_validation);
                 }
                 true
             } else {
@@ -224,6 +262,7 @@ impl GameState {
             turn: turn,
             selected_square: None,
             awaiting_promotion: None,
+            winner: None,
         }
     }
 }

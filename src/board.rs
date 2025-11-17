@@ -19,6 +19,12 @@ impl Color {
             Color::White
         }
     }
+    pub fn to_string(self) -> String {
+        match self {
+            Color::White => "White".to_string(),
+            Color::Black => "Black".to_string(),
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Default)]

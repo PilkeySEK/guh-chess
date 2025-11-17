@@ -1,4 +1,4 @@
-use eframe::egui::{self, Pos2, Rect, Sense, Vec2, ViewportBuilder};
+use eframe::egui::{self, Pos2, Rect, Sense, ViewportBuilder};
 
 use crate::{
     board::{BoardIndex, BoardIndexExt, Piece},
@@ -21,9 +21,7 @@ pub const BOARD_SQUARE_SIZE: u16 = 50;
 
 fn main() -> eframe::Result {
     let native_options = eframe::NativeOptions {
-        viewport: ViewportBuilder::default()
-            .with_inner_size(Vec2::splat(1.0))
-            .with_resizable(false),
+        viewport: ViewportBuilder::default().with_resizable(false),
         ..Default::default()
     };
 
@@ -71,7 +69,7 @@ impl ChessApp {
         self.state.board[self.state.awaiting_promotion.unwrap().1 as usize] =
             Some(Piece::new(piece, self.state.turn));
         self.state.awaiting_promotion = None;
-        self.state.switch_turn();
+        self.state.switch_turn(false);
     }
 }
 

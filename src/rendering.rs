@@ -7,6 +7,7 @@ use crate::{
     board::{Color, Piece, PieceType},
     move_validation::validator::generate_piece_map,
     positions::turn_info_text_position,
+    state::GameEndState,
     util::{
         board_size_vec2, promotion_pieces, promotion_selection_rect, promotion_selection_rect_pos,
         viewport_size_vec2,
@@ -141,20 +142,35 @@ fn make_rect_for_index(index: u16) -> Rect {
 }
 
 fn render_info(app: &ChessApp, painter: &mut egui::Painter) {
-    painter.text(
-        turn_info_text_position(),
-        Align2::LEFT_CENTER,
-        format!(
-            "{} to move",
-            if app.state.turn == Color::White {
-                "White"
-            } else {
-                "Black"
-            }
-        ),
-        FontId::monospace(15.0),
-        Color32::WHITE,
-    );
+    if app.state.winner.is_none() {
+        painter.text(
+            turn_info_text_position(),
+            Align2::LEFT_CENTER,
+            format!(
+                "{} to move",
+                if app.state.turn == Color::White {
+                    "White"
+                } else {
+                    "Black"
+                }
+            ),
+            FontId::monospace(15.0),
+            Color32::WHITE,
+        );
+    } else {
+        let winner = app.state.winner.clone().unwrap();
+        let text = match winner.0 {
+            GameEndState::Checkmate => format!("{} won!", winner.1.unwrap().to_string()),
+            GameEndState::Stalemate => "Stalemate!".to_string(),
+        };
+        painter.text(
+            turn_info_text_position(),
+            Align2::LEFT_CENTER,
+            text,
+            FontId::monospace(15.0),
+            Color32::WHITE,
+        );
+    }
 }
 
 fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter, ui: &mut Ui) {
