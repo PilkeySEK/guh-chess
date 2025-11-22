@@ -18,8 +18,8 @@ impl Movement {
         board_data: AdditionalBoardData,
     ) -> Self {
         Self {
-            start: start,
-            destination: destination,
+            start,
+            destination,
             movement_info: MovementInformation {
                 capturing: state.board.piece_at(destination).is_some()
                     || state
@@ -30,7 +30,7 @@ impl Movement {
                 piece_type: state.board.piece_at(start).unwrap().piece_type,
                 piece_color: state.board.piece_at(start).unwrap().color,
                 turn: state.turn,
-                board_data: board_data,
+                board_data,
             },
         }
     }

@@ -160,7 +160,7 @@ fn render_info(app: &ChessApp, painter: &mut egui::Painter) {
     } else {
         let winner = app.state.winner.clone().unwrap();
         let text = match winner.0 {
-            GameEndState::Checkmate => format!("{} won!", winner.1.unwrap().to_string()),
+            GameEndState::Checkmate => format!("{} won!", winner.1.unwrap()),
             GameEndState::Stalemate => "Stalemate!".to_string(),
         };
         painter.text(
@@ -186,11 +186,11 @@ fn render_promotion_selection(app: &ChessApp, painter: &mut egui::Painter, ui: &
 
     let mut current_pos = promotion_selection_rect_pos();
     let pieces = promotion_pieces();
-    for i in 0..4 {
+    for piece in pieces {
         render_piece_at_screen_pos(
             &Piece {
                 color: piece_color,
-                piece_type: pieces[i],
+                piece_type: piece,
             },
             Rect {
                 min: current_pos,

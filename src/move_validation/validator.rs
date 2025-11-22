@@ -61,11 +61,11 @@ pub fn generate_piece_map(
                     if board
                         .piece_at(take_xy.to_index())
                         .is_some_and(|p| p.color != piece.color)
-                    {
-                        piece_map.push(take_xy.to_index());
-                    } else if board_data
-                        .en_passant_square
-                        .is_some_and(|en_passant_square| en_passant_square == take_xy.to_index())
+                        || board_data
+                            .en_passant_square
+                            .is_some_and(|en_passant_square| {
+                                en_passant_square == take_xy.to_index()
+                            })
                     {
                         piece_map.push(take_xy.to_index());
                     }
@@ -75,11 +75,11 @@ pub fn generate_piece_map(
                     if board
                         .piece_at(take_xy.to_index())
                         .is_some_and(|p| p.color != piece.color)
-                    {
-                        piece_map.push(take_xy.to_index());
-                    } else if board_data
-                        .en_passant_square
-                        .is_some_and(|en_passant_square| en_passant_square == take_xy.to_index())
+                        || board_data
+                            .en_passant_square
+                            .is_some_and(|en_passant_square| {
+                                en_passant_square == take_xy.to_index()
+                            })
                     {
                         piece_map.push(take_xy.to_index());
                     }
@@ -168,7 +168,7 @@ fn puts_king_in_danger(
     start: BoardIndex,
     destination: BoardIndex,
 ) -> bool {
-    let mut next_state = GameState::from(board.clone(), board_data.clone(), turn);
+    let mut next_state = GameState::from(board.clone(), *board_data, turn);
     next_state.move_piece_bypass_validation(start, destination);
 
     // Using a list of kings instead of a simple BoardIndex variable to have the possibility of multiple kings of the same color existing (fun!)
@@ -324,11 +324,11 @@ fn may_castle_short(
 ) -> bool {
     match piece.color {
         Color::White => {
-            if board_data.castling_status.0.0 == false {
+            if !board_data.castling_status.0.0 {
                 return false;
             }
             if board.piece_at(index + 1).is_none() && board.piece_at(index + 2).is_none() {
-                if check_checks == false {
+                if !check_checks {
                     return true;
                 }
                 let enemy_map = generate_piece_map_for_all_enemy_pieces(
@@ -342,17 +342,17 @@ fn may_castle_short(
                 {
                     return false;
                 }
-                return true;
+                true
             } else {
-                return false;
+                false
             }
         }
         Color::Black => {
-            if board_data.castling_status.1.0 == false {
+            if !board_data.castling_status.1.0 {
                 return false;
             }
             if board.piece_at(index + 1).is_none() && board.piece_at(index + 2).is_none() {
-                if check_checks == false {
+                if !check_checks {
                     return true;
                 }
                 let enemy_map = generate_piece_map_for_all_enemy_pieces(
@@ -366,9 +366,9 @@ fn may_castle_short(
                 {
                     return false;
                 }
-                return true;
+                true
             } else {
-                return false;
+                false
             }
         }
     }
@@ -383,14 +383,14 @@ fn may_castle_long(
 ) -> bool {
     match piece.color {
         Color::White => {
-            if board_data.castling_status.0.1 == false {
+            if !board_data.castling_status.0.1 {
                 return false;
             }
             if board.piece_at(index - 1).is_none()
                 && board.piece_at(index - 2).is_none()
                 && board.piece_at(index - 3).is_none()
             {
-                if check_checks == false {
+                if !check_checks {
                     return true;
                 }
                 let enemy_map = generate_piece_map_for_all_enemy_pieces(
@@ -405,20 +405,20 @@ fn may_castle_long(
                 {
                     return false;
                 }
-                return true;
+                true
             } else {
-                return false;
+                false
             }
         }
         Color::Black => {
-            if board_data.castling_status.1.1 == false {
+            if !board_data.castling_status.1.1 {
                 return false;
             }
             if board.piece_at(index - 1).is_none()
                 && board.piece_at(index - 2).is_none()
                 && board.piece_at(index - 3).is_none()
             {
-                if check_checks == false {
+                if !check_checks {
                     return true;
                 }
                 let enemy_map = generate_piece_map_for_all_enemy_pieces(
@@ -433,9 +433,9 @@ fn may_castle_long(
                 {
                     return false;
                 }
-                return true;
+                true
             } else {
-                return false;
+                false
             }
         }
     }

@@ -1,4 +1,4 @@
-use std::vec;
+use std::{fmt, vec};
 
 use eframe::egui::Pos2;
 
@@ -19,11 +19,18 @@ impl Color {
             Color::White
         }
     }
-    pub fn to_string(self) -> String {
-        match self {
-            Color::White => "White".to_string(),
-            Color::Black => "Black".to_string(),
-        }
+}
+
+impl std::fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Color::Black => "Black",
+                Color::White => "White",
+            }
+        )
     }
 }
 
@@ -46,10 +53,7 @@ pub struct Piece {
 
 impl Piece {
     pub fn new(piece_type: PieceType, color: Color) -> Self {
-        Self {
-            color: color,
-            piece_type: piece_type,
-        }
+        Self { color, piece_type }
     }
 }
 

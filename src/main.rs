@@ -41,7 +41,7 @@ impl ChessApp {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
         egui_extras::install_image_loaders(&cc.egui_ctx);
         let state = state::GameState::new_with_default_position();
-        Self { state: state }
+        Self { state }
     }
 
     pub fn on_click(&mut self, pos: Pos2) {

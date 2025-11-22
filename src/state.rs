@@ -43,13 +43,11 @@ impl GameState {
     /// Change turn from black->white or white->black. Also performs checkmate detection.
     pub fn switch_turn(&mut self, bypass_validation: bool) {
         self.turn = self.turn.opposite();
-        if !bypass_validation {
-            if !self.player_has_any_moves(self.turn) {
-                if self.player_has_any_moves(self.turn.opposite()) {
-                    self.winner = Some((GameEndState::Checkmate, Some(self.turn.opposite())));
-                } else {
-                    self.winner = Some((GameEndState::Stalemate, None));
-                }
+        if !bypass_validation && !self.player_has_any_moves(self.turn) {
+            if self.player_has_any_moves(self.turn.opposite()) {
+                self.winner = Some((GameEndState::Checkmate, Some(self.turn.opposite())));
+            } else {
+                self.winner = Some((GameEndState::Stalemate, None));
             }
         }
     }
@@ -68,11 +66,11 @@ impl GameState {
                 i as u16,
                 true,
             );
-            if map.len() != 0 {
+            if !map.is_empty() {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     /// Moves the piece from `start` to `destination`. This function validates the move fully.
@@ -129,22 +127,20 @@ impl GameState {
                             self.board[BLACK_KING_CASTLING_INDEX as usize + 1] =
                                 Some(Piece::new(PieceType::Rook, Color::Black));
                         }
+                    } else if movement.movement_info.piece_color == Color::White {
+                        self.board[WHITE_KING_CASTLING_INDEX as usize] = None;
+                        self.board[WHITE_KING_CASTLING_INDEX as usize - 2] =
+                            Some(Piece::new(PieceType::King, Color::White));
+                        self.board[WHITE_KING_CASTLING_INDEX as usize - 4] = None;
+                        self.board[WHITE_KING_CASTLING_INDEX as usize - 1] =
+                            Some(Piece::new(PieceType::Rook, Color::White));
                     } else {
-                        if movement.movement_info.piece_color == Color::White {
-                            self.board[WHITE_KING_CASTLING_INDEX as usize] = None;
-                            self.board[WHITE_KING_CASTLING_INDEX as usize - 2] =
-                                Some(Piece::new(PieceType::King, Color::White));
-                            self.board[WHITE_KING_CASTLING_INDEX as usize - 4] = None;
-                            self.board[WHITE_KING_CASTLING_INDEX as usize - 1] =
-                                Some(Piece::new(PieceType::Rook, Color::White));
-                        } else {
-                            self.board[BLACK_KING_CASTLING_INDEX as usize] = None;
-                            self.board[BLACK_KING_CASTLING_INDEX as usize - 2] =
-                                Some(Piece::new(PieceType::King, Color::Black));
-                            self.board[BLACK_KING_CASTLING_INDEX as usize - 4] = None;
-                            self.board[BLACK_KING_CASTLING_INDEX as usize - 1] =
-                                Some(Piece::new(PieceType::Rook, Color::Black));
-                        }
+                        self.board[BLACK_KING_CASTLING_INDEX as usize] = None;
+                        self.board[BLACK_KING_CASTLING_INDEX as usize - 2] =
+                            Some(Piece::new(PieceType::King, Color::Black));
+                        self.board[BLACK_KING_CASTLING_INDEX as usize - 4] = None;
+                        self.board[BLACK_KING_CASTLING_INDEX as usize - 1] =
+                            Some(Piece::new(PieceType::Rook, Color::Black));
                     }
                 }
                 if self.awaiting_promotion.is_none() {
@@ -188,7 +184,6 @@ impl GameState {
             self.additional_board_data.en_passant_square = Some(en_passant_square.to_index());
         } else {
             self.additional_board_data.en_passant_square = None;
-            return;
         }
     }
 
@@ -213,7 +208,7 @@ impl GameState {
         if m.start > m.destination {
             return 2;
         }
-        return 0;
+        0
     }
 
     pub fn check_for_castle_disabling_move(&mut self, m: &Movement) {
@@ -257,9 +252,9 @@ impl GameState {
 
     pub fn from(board: Board, additional_board_data: AdditionalBoardData, turn: Color) -> Self {
         Self {
-            board: board,
-            additional_board_data: additional_board_data,
-            turn: turn,
+            board,
+            additional_board_data,
+            turn,
             selected_square: None,
             awaiting_promotion: None,
             winner: None,
